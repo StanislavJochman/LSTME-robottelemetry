@@ -2,7 +2,6 @@
 import tkinter
 from tkinter import ttk
 import sys,os
-import readTelemetry
 import serial
 import serial.tools.list_ports
 import time
@@ -10,21 +9,16 @@ import random
 
 windowsize = (1280,720)
 
-def open_exit_popup():
-   top = tkinter.Toplevel(win)
-   top.geometry("200x85")
-   top.title("Exit program")
-   tkinter.Label(top, text= "Do you want to quit", font=('Mistral 11')).place(x=30,y=0)
-   tkinter.Button(top, text= "Yes", command= exit).place(x=40,y=30)
-   tkinter.Button(top, text= "No", command= top.destroy).place(x=100,y=30)
-
+end = 1
 def buttonHanlder(event):
-    global finish,start,robot
+    global end
     if(event.char == "\x1b"):
-        open_exit_popup()
+        end=0
+        exit()
     else:
         pass    
 
+#drawing info on screen
 def drawInfo(dist1,dist2,dist3,angle,acc,sensors):
     global c
     c.create_image((windowsize[0]/2, windowsize[1]/2), image = robotBody)
@@ -44,7 +38,6 @@ def drawInfo(dist1,dist2,dist3,angle,acc,sensors):
     
 
 if __name__ == "__main__":
-    print(os.getcwd())
     win = tkinter.Tk(className='Robot telemetry')
     win.geometry("{}x{}".format(windowsize[0],windowsize[1]))
     c = tkinter.Canvas(win,width=windowsize[0]+20, height=windowsize[1]+20, background= "white")
@@ -66,31 +59,28 @@ def getComPort():
     print(variable.get())
 
 if __name__ == "__main__":
-
-
     variable = tkinter.StringVar(win)
-    variable.set("Serial port") # default value
-    
-
+    variable.set("Serial port")
+    #list for storing serial ports
     portlist = ["Serial port"]
     ports = serial.tools.list_ports.comports()
+    #adding ports to list
     for p in ports:
         portlist.append(p.device)
-    print(portlist)
 
-    dropdown = tkinter.OptionMenu(win, variable, *portlist).place(x=0,y=0)
+    #dropdown menu 
+    tkinter.OptionMenu(win, variable, *portlist).place(x=0,y=0)
     tkinter.Button(win, text= "Connect",pady=5,fg="gray", command=getComPort ).place(x=107,y=0)    
     
 
     starttime = time.time()
     lightArr = [0,0,0,0,0]
-    while True:
+    while (end):
         c.delete("all")
         if (time.time()-starttime>0.1):
             lightArr = []
             for x in range(5):
                 lightArr.append(random.randint(0,1))
-            print(lightArr)
             starttime = time.time()
         
         drawInfo(random.randint(0,100),random.randint(0,100),random.randint(0,100),random.randint(0,360),random.randint(0,1),lightArr)
