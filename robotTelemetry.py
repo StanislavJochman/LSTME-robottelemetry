@@ -2,7 +2,6 @@
 
 from machine import Pin
 from hcsr04 import HCSR04
-
 import json
 
 
@@ -19,24 +18,36 @@ class RobotTelemetry:
         self.init_motors()
 
     def init_cny(self):
-        self.cny = {
-            'LL': Pin(13, Pin.IN),
-            'L': Pin(12, Pin.IN),
-            'M': Pin(11, Pin.IN),
-            'R': Pin(10, Pin.IN),
-            'RR': Pin(9, Pin.IN),
+        pins = {
+            'LL': 13,
+            'L': 12,
+            'M': 11,
+            'R': 10,
+            'RR': 9,
         }
+
+        self.cny = {}
+        for s in pins:
+            self.cny[s] = Pin(pins[s], Pin.IN)
 
     def read_cny(self):
         for s in self.cny:
             self.data['cny'][s] = self.cny[s].value()
 
     def init_ultrasonic(self):
-        self.ultrasonic = {
-            'L': HCSR04(trigger_pin=14, echo_pin=15),
-            'M': HCSR04(trigger_pin=4, echo_pin=5),
-            'R': HCSR04(trigger_pin=2, echo_pin=3),
+        pins = {
+            'L': {'trigger': 14, 'echo': 15},
+            'M': {'trigger': 4, 'echo': 5},
+            'R': {'trigger': 2, 'echo': 3},
         }
+
+        self.ultrasonic = {}
+        for s in pins:
+            self.ultrasonic[s] = HCSR04(
+                trigger_pin=pins[s]['trigger'],
+                echo_pin=pins[s]['echo'],
+                echo_timeout_us=1000000
+            )
 
     def read_ultrasonic(self):
         for s in self.ultrasonic:
