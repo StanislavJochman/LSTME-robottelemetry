@@ -1,70 +1,70 @@
 #!/usr/bin/env python3
-
-from machine import Pin
-from hcsr04 import HCSR04
 import json
 
 
-class RobotTelemetry:
-    def __init__(self):
-        self.data = {
-            'cny': {},
-            'ultrasonic': {},
-            'motors':   {}
+def telemetry(**values):
+    '''
+    The function for sending telemetry data.
+
+    Prints data on standard output.
+    Should be used in robot's main program loop e.g.:
+        def main():
+            # follow line...
+            ...
+            telemetry()
+
+    Parameters:
+        cny_LL (int): Value for total left line sensor. 0 when reads black, 1 when reads white.
+        cny_L (int): Value for middle left line sensor. 0 when reads black, 1 when reads white.
+        cny_M (int): Value for total middle line sensor. 0 when reads black, 1 when reads white.
+        cny_R (int): Value for middle right line sensor. 0 when reads black, 1 when reads white.
+        cny_RR (int): Value for total right line sensor. 0 when reads black, 1 when reads white.
+
+        ultrasonic_L (float): Value for left ultrasonic sensor. Distance in centimeters.
+        ultrasonic_M (float): Value for middle ultrasonic sensor. Distance in centimeters.
+        ultrasonic_R (float): Value for right ultrasonic sensor. Distance in centimeters.
+
+        motor_LF_freq (int): Left forward motor's PWM frequency.
+        motor_LF_duty (int): Left forward motor's PWM duty cycle (uint16).
+        motor_LB_freq (int): Left backward motor's PWM frequency.
+        motor_LB_duty (int): Left backward motor's PWM duty cycle (uint16).
+        motor_RF_freq (int): Right forward motor's PWM frequency.
+        motor_RF_duty (int): Right forward motor's PWM duty cycle (uint16).
+        motor_RB_freq (int): Right backward motor's PWM frequency.
+        motor_RB_duty (int): Right backward motor's PWM duty cycle (uint16).
+    '''
+
+    data = {
+        'cny': {
+            'LL': values['cny_LL'],
+            'L': values['cny_L'],
+            'M': values['cny_M'],
+            'R': values['cny_R'],
+            'RR': values['cny_RR'],
+        },
+        'ultrasonic': {
+            'L': values['ultrasonic_L'],
+            'M': values['ultrasonic_M'],
+            'R': values['ultrasonic_R'],
+        },
+        'motors':   {
+            'LF': {
+                'freq': values['motor_LF_freq'],
+                'duty': values['motor_LF_duty']
+            },
+            'LB': {
+                'freq': values['motor_LB_freq'],
+                'duty': values['motor_LB_duty']
+            },
+            'RF': {
+                'freq': values['motor_RF_freq'],
+                'duty': values['motor_RF_duty']
+            },
+            'RB': {
+                'freq': values['motor_RB_freq'],
+                'duty': values['motor_RB_duty']
+            }
         }
+    }
 
-        self.init_cny()
-        self.init_ultrasonic()
-        self.init_motors()
-
-    def init_cny(self):
-        pins = {
-            'LL': 13,
-            'L': 12,
-            'M': 11,
-            'R': 10,
-            'RR': 9,
-        }
-
-        self.cny = {}
-        for s in pins:
-            self.cny[s] = Pin(pins[s], Pin.IN)
-
-    def read_cny(self):
-        for s in self.cny:
-            self.data['cny'][s] = self.cny[s].value()
-
-    def init_ultrasonic(self):
-        pins = {
-            'L': {'trigger': 14, 'echo': 15},
-            'M': {'trigger': 4, 'echo': 5},
-            'R': {'trigger': 2, 'echo': 3},
-        }
-
-        self.ultrasonic = {}
-        for s in pins:
-            self.ultrasonic[s] = HCSR04(
-                trigger_pin=pins[s]['trigger'],
-                echo_pin=pins[s]['echo'],
-                echo_timeout_us=1000000
-            )
-
-    def read_ultrasonic(self):
-        for s in self.ultrasonic:
-            self.data['ultrasonic'][s] = self.ultrasonic[s].distance_cm()
-
-    def init_motors(self):
-        pass
-
-    def read_motors(self):
-        pass
-
-    def json_encode(self):
-        return json.dumps(self.data)
-
-    def main(self):
-        while True:
-            self.read_cny()
-            self.read_ultrasonic()
-            self.read_motors()
-            print(self.json_encode())
+    print(json.dumps(data))
