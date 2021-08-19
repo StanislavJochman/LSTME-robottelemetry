@@ -11,7 +11,7 @@ def telemetry(**values):
         def main():
             # follow line...
             ...
-            telemetry()
+            telemetry(cny_LL=r.cny['LL'], ...)
 
     Parameters:
         cny_LL (int): Value for total left line sensor. 0 when reads black, 1 when reads white.
