@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import sys
 
 
 def telemetry(**values):
@@ -67,4 +68,9 @@ def telemetry(**values):
         }
     }
 
-    print(json.dumps(data))
+    json_data = json.dumps(data)
+    read_bytes = sys.getsizeof(json_data).to_bytes(64, 'little')
+
+    print('@'.encode(), end='')
+    # print(read_bytes, end='')
+    # print(json_data, end='')
