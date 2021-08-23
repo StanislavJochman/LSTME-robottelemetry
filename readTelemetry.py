@@ -1,45 +1,41 @@
 #!/usr/bin/env python3
 import serial
 import json
-import sys
-import time
 
 
 class ReadTelemetry:
     def __init__(self, bluetooth_com_port):
-        self.ser = serial.Serial(
-            bluetooth_com_port, 9600, timeout=0, parity=serial.PARITY_EVEN, rtscts=1)
+        self.ser = serial.Serial(bluetooth_com_port, 9600, timeout=0,
+                                 parity=serial.PARITY_EVEN, rtscts=1)
+        self.row_str = None
 
-        self.init_buffer = []
-        self.init_buffer_max_length = sys.getsizeof('@')  # 50
+    def start_telemetry(self):
+        buffer = b''
+        i = 1
+        initialized = False
 
-    def read_telemetry(self):
-        self.init_buffer.append(self.ser.read(1))
-        self.init_buffer = self.init_buffer[-self.init_buffer_max_length:]
+        while True:
+            buffer += self.ser.read(100)
+            ix = buffer.find(b'\r\n')
 
-        start_byte = b''.join(self.init_buffer)
-        print(start_byte)
-        print(start_byte.decode().strip(), len(self.init_buffer))
+            if ix > -1:
+                row_data = buffer[:ix]
+                buffer = buffer[ix+2:]
 
-        if start_byte.decode().strip() != '@':
-            return
+                row_str = row_data.decode()
 
-        print('init')
-        exit('OK')
+                if row_str == '@start':
+                    if not initialized:
+                        print('==INITIALIZED==')
+                    initialized = True
+                    continue
 
-        bytes = self.ser.read(64)
-        print('bytes', bytes)  # debug
-        read_bytes = int.from_bytes(bytes, 'little')
+                if not initialized:
+                    continue
 
-        data_json = self.ser.read(read_bytes)
-        data = json.loads(data_json)
+                print('{}. {}'.format(i, row_str))
+                self.row_str = json.loads(row_str)
+                i += 1
 
-        print(data)  # debug
-
-
-# test
-t = ReadTelemetry('/dev/tty.LSTME20-SPPDev')
-
-
-while True:
-    t.read_telemetry()
+    def get_telemetry(self):
+        return self.row_str
