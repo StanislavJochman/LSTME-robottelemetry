@@ -1,76 +1,105 @@
 #!/usr/bin/env python3
+import utime
 import json
-import sys
 
 
-def telemetry(**values):
-    '''
-    The function for sending telemetry data.
+from machine import Pin, PWM
+from hcsr04 import HCSR04
 
-    Prints data on standard output.
-    Should be used in robot's main program loop e.g.:
-        def main():
-            # follow line...
-            ...
-            telemetry(cny_LL=r.cny['LL'), ...)
 
-    Parameters:
-        cny_LL (int): Value for total left line sensor. 0 when reads black, 1 when reads white.
-        cny_L (int): Value for middle left line sensor. 0 when reads black, 1 when reads white.
-        cny_M (int): Value for total middle line sensor. 0 when reads black, 1 when reads white.
-        cny_R (int): Value for middle right line sensor. 0 when reads black, 1 when reads white.
-        cny_RR (int): Value for total right line sensor. 0 when reads black, 1 when reads white.
+class RobotTelemetry:
+    def __init__(self, **pins_config):
+        '''
+        Configure pins.
 
-        ultrasonic_L (float): Value for left ultrasonic sensor. Distance in centimeters.
-        ultrasonic_M (float): Value for middle ultrasonic sensor. Distance in centimeters.
-        ultrasonic_R (float): Value for right ultrasonic sensor. Distance in centimeters.
+        All Pins have default preset from robot blueprint. 
 
-        motor_LF_freq (int): Left forward motor's PWM frequency.
-        motor_LF_duty (int): Left forward motor's PWM duty cycle (uint16).
-        motor_LB_freq (int): Left backward motor's PWM frequency.
-        motor_LB_duty (int): Left backward motor's PWM duty cycle (uint16).
-        motor_RF_freq (int): Right forward motor's PWM frequency.
-        motor_RF_duty (int): Right forward motor's PWM duty cycle (uint16).
-        motor_RB_freq (int): Right backward motor's PWM frequency.
-        motor_RB_duty (int): Right backward motor's PWM duty cycle (uint16).
-    '''
+        Parameters:
+            cny_LL (int): Pin number for total left line sensor.
+            cny_L (int): Pin number for middle left line sensor.
+            cny_M (int): Pin number for total middle line sensor.
+            cny_R (int): Pin number for middle right line sensor.
+            cny_RR (int): Pin number for total right line sensor.
 
-    data = {
-        'cny': {
-            'LL': values.get('cny_LL'),
-            'L': values.get('cny_L'),
-            'M': values.get('cny_M'),
-            'R': values.get('cny_R'),
-            'RR': values.get('cny_RR'),
-        },
-        'ultrasonic': {
-            'L': values.get('ultrasonic_L'),
-            'M': values.get('ultrasonic_M'),
-            'R': values.get('ultrasonic_R'),
-        },
-        'motors':   {
-            'LF': {
-                'freq': values.get('motor_LF_freq'),
-                'duty': values.get('motor_LF_duty')
-            },
-            'LB': {
-                'freq': values.get('motor_LB_freq'),
-                'duty': values.get('motor_LB_duty')
-            },
-            'RF': {
-                'freq': values.get('motor_RF_freq'),
-                'duty': values.get('motor_RF_duty')
-            },
-            'RB': {
-                'freq': values.get('motor_RB_freq'),
-                'duty': values.get('motor_RB_duty')
-            }
+            ultrasonic_L_trigger (int): Pin number for left ultrasonic sensor trigger.
+            ultrasonic_M_trigger (int): Pin number for middle ultrasonic sensor trigger.
+            ultrasonic_R_trigger (int): Pin number for right ultrasonic sensor trigger.
+            ultrasonic_L_echo (int): Pin number for left ultrasonic sensor echo.
+            ultrasonic_M_echo (int): Pin number for middle ultrasonic sensor echo.
+            ultrasonic_R_echo (int): Pin number for right ultrasonic sensor echo.
+
+            motor_LF (int): Pin number for left forward motor.
+            motor_LB (int): Pin number for left backward motor.
+            motor_RF (int): Pin number for right forward motor.
+            motor_RB (int): Pin number for right backward motor.
+        '''
+
+        self.data = {
+            'cny': {},
+            'ultrasonic': {},
+            'motors': {}
         }
-    }
 
-    json_data = json.dumps(data)
-    read_bytes = sys.getsizeof(json_data).to_bytes(64, 'little')
+        self.pins_config = pins_config
 
-    print(b'@', end='')
-    # print(read_bytes, end='')
-    # print(json_data, end='')
+        self.init_cny()
+        self.init_ultrasonic()
+        self.init_motors()
+
+    def init_cny(self):
+        self.cny = {
+            'LL': Pin(self.pins_config.get('cny_LL', 13), Pin.IN),
+            'L': Pin(self.pins_config.get('cny_L', 12), Pin.IN),
+            'M': Pin(self.pins_config.get('cny_M', 11), Pin.IN),
+            'R': Pin(self.pins_config.get('cny_R', 10), Pin.IN),
+            'RR': Pin(self.pins_config.get('cny_RR', 9), Pin.IN),
+        }
+
+    def read_cny(self):
+        for s in self.cny:
+            self.data['cny'][s] = self.cny[s].value()
+
+    def init_ultrasonic(self):
+        self.ultrasonic = {
+            'L': HCSR04(
+                trigger_pin=self.pins_config.get('ultrasonic_L_trigger', 14),
+                echo_pin=self.pins_config.get('ultrasonic_L_echo', 15)
+            ),
+            'M': HCSR04(
+                trigger_pin=self.pins_config.get('ultrasonic_M_trigger', 4),
+                echo_pin=self.pins_config.get('ultrasonic_M_echo', 5)
+            ),
+            'R': HCSR04(
+                trigger_pin=self.pins_config.get('ultrasonic_R_trigger', 2),
+                echo_pin=self.pins_config.get('ultrasonic_R_echo', 3)
+            ),
+        }
+
+    def read_ultrasonic(self):
+        for s in self.ultrasonic:
+            self.data['ultrasonic'][s] = self.ultrasonic[s].distance_cm()
+
+    def init_motors(self):
+        self.motors = {}
+        self.motors['LF'] = PWM(Pin(self.pins_config.get('motor_LF', 18)))
+        self.motors['LB'] = PWM(Pin(self.pins_config.get('motor_LB', 19)))
+        self.motors['RF'] = PWM(Pin(self.pins_config.get('motor_RF', 21)))
+        self.motors['RB'] = PWM(Pin(self.pins_config.get('motor_RB', 20)))
+
+    def read_motors(self):
+        for m in self.motors:
+            self.data['motors'][m] = self.motors[m].duty_u16()
+
+    def json_encode(self):
+        return json.dumps(self.data)
+
+    def main(self):
+        while True:
+            self.read_cny()
+            self.read_ultrasonic()
+            self.read_motors()
+
+            print('@start')
+            print(self.json_encode())
+
+            utime.sleep(0.01)
