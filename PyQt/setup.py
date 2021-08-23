@@ -1,6 +1,6 @@
 from cx_Freeze import setup, Executable
 
-executables = [Executable("main.py",icon="../img/LSTME_logo.png")]
+executables = [Executable("test.py",icon="../img/LSTME_logo.png")]
 
 setup(
     name="JozefBot Telemetry",
