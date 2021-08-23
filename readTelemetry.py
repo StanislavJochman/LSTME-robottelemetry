@@ -7,7 +7,7 @@ class ReadTelemetry:
     def __init__(self, bluetooth_com_port):
         self.ser = serial.Serial(bluetooth_com_port, 9600, timeout=0,
                                  parity=serial.PARITY_EVEN, rtscts=1)
-        self.row_str = None
+        self.data = None
 
     def start_telemetry(self):
         buffer = b''
@@ -34,8 +34,8 @@ class ReadTelemetry:
                     continue
 
                 print('{}. {}'.format(i, row_str))
-                self.row_str = json.loads(row_str)
+                self.data = json.loads(row_str)
                 i += 1
 
     def get_telemetry(self):
-        return self.row_str
+        return self.data
