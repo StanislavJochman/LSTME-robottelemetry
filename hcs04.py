@@ -66,6 +66,8 @@ class HCSR04:
         It returns a float
         """
         pulse_time = self._send_pulse_and_wait()
+        if pulse_time == -1:
+            return 400
 
         # To calculate the distance we get the pulse_time and divide it by 2
         # (the pulse walk the distance twice) and by 29.1 becasue
