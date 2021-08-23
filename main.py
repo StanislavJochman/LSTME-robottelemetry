@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ultrasonicSensor = tkinter.PhotoImage(file="./img/ultrasonic.png")
     ultrasonicSensor = ultrasonicSensor.subsample(3, 3)
     robotBody = tkinter.PhotoImage(file="./img/robot.png")
-    robotBody = robotBody.subsample(1, 1)
+    robotBody = robotBody.subsample(10, 10)
     win.bind('<KeyPress>',buttonHanlder)
     win.resizable(width=False, height=False)
 
