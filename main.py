@@ -68,8 +68,6 @@ read_telemetry = None
 def getComPort():
     global read_telemetry
     read_telemetry = ReadTelemetry(variable.get())
-    print('WTF', read_telemetry, read_telemetry.data)
-    exit(0)
 
 
 if __name__ == "__main__":
