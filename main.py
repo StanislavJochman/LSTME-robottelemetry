@@ -26,12 +26,13 @@ def buttonHanlder(event):
 # drawing info on screen
 
 
-def drawInfo(dist1, dist2, dist3, angle, acc, sensors):
+def drawInfo(dist1, dist2, dist3, angle, l_motor, r_motor, sensors):
     global c
     #c.create_image((windowsize[0]/2, windowsize[1]/2), image=robotBody)
     #c.create_image((windowsize[0]/2, windowsize[1]-120), image=gyroSensor)
     c.create_text(windowsize[0]/2, windowsize[1]-50, text=angle)
-    c.create_text(windowsize[0]/2, windowsize[1]-30, text=acc)
+    c.create_text(windowsize[0]/2-120, windowsize[1]-30, text=l_motor)
+    c.create_text(windowsize[0]/2+120, windowsize[1]-30, text=r_motor)
     c.create_text(windowsize[0]/2, windowsize[1]/2-190, text=dist2)
     c.create_text(windowsize[0]/2-120, windowsize[1]/2-150, text=dist1)
     c.create_text(windowsize[0]/2+120, windowsize[1]/2-150, text=dist3)
@@ -87,6 +88,9 @@ if __name__ == "__main__":
 
     starttime = time.time()
 
+    motor_start_threshold = 40_000
+    motor_max = 2 ** 16 - 1 - motor_start_threshold
+
     while (end):
         c.delete("all")
 
@@ -96,12 +100,39 @@ if __name__ == "__main__":
             if read_telemetry.data:
                 data = read_telemetry.get_telemetry()
 
+                lm = 'LF' if data['motors']['LF'] > data['motors']['LB'] else 'LB'
+                rm = 'RF' if data['motors']['RF'] > data['motors']['RB'] else 'RB'
+
+                if data['motors'][lm] < motor_start_threshold:
+                    l_value = motor_start_threshold
+                else:
+                    l_value = data['motors'][lm]
+                if data['motors'][rm] < motor_start_threshold:
+                    r_value = motor_start_threshold
+                else:
+                    r_value = data['motors'][rm]
+
+                l_motor = (l_value - motor_start_threshold) / motor_max * 100
+                r_motor = (r_value - motor_start_threshold) / motor_max * 100
+
+                dir_l = -1 if lm == 'LB' else 1
+                dir_r = -1 if rm == 'RB' else 1
+
+                l_motor *= dir_l
+                r_motor *= dir_r
+
+                print('LF', data['motors']['LF'])
+                print('LB', data['motors']['LB'])
+                print('RF', data['motors']['RF'])
+                print('RB', data['motors']['RB'])
+
                 drawInfo(
                     data['ultrasonic']['L'],
                     data['ultrasonic']['M'],
                     data['ultrasonic']['R'],
                     random.randint(0, 100),
-                    random.randint(0, 100),
+                    '{:3.2f}%'.format(l_motor),
+                    '{:3.2f}%'.format(r_motor),
                     [
                         data['cny']['LL'],
                         data['cny']['L'],
