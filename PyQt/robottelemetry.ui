@@ -28,7 +28,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../img/LSTME logo RGB.png</normaloff>../img/LSTME logo RGB.png</iconset>
+    <normaloff>../img/LSTME_logo.png</normaloff>../img/LSTME_logo.png</iconset>
   </property>
   <widget class="QWidget" name="gridLayoutWidget_2">
    <property name="geometry">
@@ -441,8 +441,11 @@ p, li { white-space: pre-wrap; }
           <height>120</height>
          </size>
         </property>
+        <property name="maximum">
+         <number>1</number>
+        </property>
         <property name="value">
-         <number>24</number>
+         <number>-1</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -486,8 +489,11 @@ p, li { white-space: pre-wrap; }
           <height>120</height>
          </size>
         </property>
+        <property name="maximum">
+         <number>1</number>
+        </property>
         <property name="value">
-         <number>24</number>
+         <number>-1</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -505,8 +511,11 @@ p, li { white-space: pre-wrap; }
           <height>120</height>
          </size>
         </property>
+        <property name="maximum">
+         <number>1</number>
+        </property>
         <property name="value">
-         <number>24</number>
+         <number>-1</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -533,8 +542,11 @@ p, li { white-space: pre-wrap; }
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
+        <property name="maximum">
+         <number>1</number>
+        </property>
         <property name="value">
-         <number>24</number>
+         <number>-1</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -588,8 +600,11 @@ p, li { white-space: pre-wrap; }
           <height>120</height>
          </size>
         </property>
+        <property name="maximum">
+         <number>1</number>
+        </property>
         <property name="value">
-         <number>24</number>
+         <number>-1</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -602,16 +617,12 @@ p, li { white-space: pre-wrap; }
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QLineEdit" name="ComPort">
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maxLength">
-           <number>100</number>
-          </property>
+         <widget class="QComboBox" name="COM_Port">
+          <item>
+           <property name="text">
+            <string>Serial port</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>

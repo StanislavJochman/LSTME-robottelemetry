@@ -1,30 +1,17 @@
 from cx_Freeze import setup, Executable
 
-executables = [Executable("CingChecker.py",icon="icon.ico")]
+executables = [Executable("main.py",icon="../img/LSTME_logo.png")]
 
 setup(
-    name="Cing Checker",
+    name="JozefBot Telemetry",
     version = "1.0.0",
-    description = 'Program for checking robot Cing sensors',
+    description = 'Telemetry program for JozefBot',
     author = 'Stanislav Jochman',
-    options={"build_exe": {"packages":["serial","webbrowser","time"],
-                           "include_files":["16x2.png",
-                                            "Battery.png",
-                                            "bmp180.png",
-                                            "Button.png",
-                                            "enc.png",
-                                            "Gyro.png",
-                                            "lidar.png",
-                                            "lightsensor.png",
-                                            "oled.png",
-                                            "pot.png",
-                                            "servoboard.png",
-                                            "shinearray.png",
-                                            "speaker.png",
-                                            "TemperatureSensor.png",
-                                            "ultrasonic.png",
-                                            "icon.png",
-                                            "Cing_Checker.config"]}},
+    options={"build_exe": {"packages":["serial","PyQt5","time","sys","serial.tools.list_ports","time","ui"],
+                           "include_files":["../img/gyro.png",
+                                            "../img/robot.png",
+                                            "../img/LSTME_logo.png"
+                                            ]}},
     executables = executables
     )
 
