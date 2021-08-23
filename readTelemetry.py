@@ -9,33 +9,51 @@ class ReadTelemetry:
                                  parity=serial.PARITY_EVEN, rtscts=1)
         self.data = None
 
-    def start_telemetry(self):
-        buffer = b''
-        i = 1
-        initialized = False
+        self.buffer = b''
+        self.i = 1
+        self.initialized = False
 
-        while True:
-            buffer += self.ser.read(100)
-            ix = buffer.find(b'\r\n')
+    def consume(self):
+        '''
+        Reads telemtry data from serial port.
 
-            if ix > -1:
-                row_data = buffer[:ix]
-                buffer = buffer[ix+2:]
+        Updates last robot telemetry values.
+        Should be used in robot's GUI telemetry main program e.g.:
 
-                row_str = row_data.decode()
+        import ReadTelemetry
+        ...
+        t = ReadTelemetry('/dev/tty.usbmodem0000000000001')
+        ...
 
-                if row_str == '@start':
-                    if not initialized:
-                        print('==INITIALIZED==')
-                    initialized = True
-                    continue
+        def draw():
+            ...
+            t.consume()
+            ...
+            # draw componets...
+            display_values(t.get_telemetry())
+        '''
 
-                if not initialized:
-                    continue
+        self.buffer += self.ser.read(100)
+        ix = self.buffer.find(b'\r\n')
 
-                print('{}. {}'.format(i, row_str))
-                self.data = json.loads(row_str)
-                i += 1
+        if ix > -1:
+            row_data = self.buffer[:ix]
+            self.buffer = self.buffer[ix+2:]
+
+            row_str = row_data.decode()
+
+            if row_str == '@start':
+                if not self.initialized:
+                    print('==INITIALIZED==')
+                self.initialized = True
+                return
+
+            if not self.initialized:
+                return
+
+            print('{}. {}'.format(self.i, row_str))
+            self.data = json.loads(row_str)
+            self.i += 1
 
     def get_telemetry(self):
         return self.data
