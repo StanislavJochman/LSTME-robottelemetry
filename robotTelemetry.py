@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import sys
 
 
 def telemetry(**values):
@@ -11,7 +12,7 @@ def telemetry(**values):
         def main():
             # follow line...
             ...
-            telemetry(cny_LL=r.cny['LL'], ...)
+            telemetry(cny_LL=r.cny['LL'), ...)
 
     Parameters:
         cny_LL (int): Value for total left line sensor. 0 when reads black, 1 when reads white.
@@ -36,35 +37,40 @@ def telemetry(**values):
 
     data = {
         'cny': {
-            'LL': values['cny_LL'],
-            'L': values['cny_L'],
-            'M': values['cny_M'],
-            'R': values['cny_R'],
-            'RR': values['cny_RR'],
+            'LL': values.get('cny_LL'),
+            'L': values.get('cny_L'),
+            'M': values.get('cny_M'),
+            'R': values.get('cny_R'),
+            'RR': values.get('cny_RR'),
         },
         'ultrasonic': {
-            'L': values['ultrasonic_L'],
-            'M': values['ultrasonic_M'],
-            'R': values['ultrasonic_R'],
+            'L': values.get('ultrasonic_L'),
+            'M': values.get('ultrasonic_M'),
+            'R': values.get('ultrasonic_R'),
         },
         'motors':   {
             'LF': {
-                'freq': values['motor_LF_freq'],
-                'duty': values['motor_LF_duty']
+                'freq': values.get('motor_LF_freq'),
+                'duty': values.get('motor_LF_duty')
             },
             'LB': {
-                'freq': values['motor_LB_freq'],
-                'duty': values['motor_LB_duty']
+                'freq': values.get('motor_LB_freq'),
+                'duty': values.get('motor_LB_duty')
             },
             'RF': {
-                'freq': values['motor_RF_freq'],
-                'duty': values['motor_RF_duty']
+                'freq': values.get('motor_RF_freq'),
+                'duty': values.get('motor_RF_duty')
             },
             'RB': {
-                'freq': values['motor_RB_freq'],
-                'duty': values['motor_RB_duty']
+                'freq': values.get('motor_RB_freq'),
+                'duty': values.get('motor_RB_duty')
             }
         }
     }
 
-    print(json.dumps(data))
+    json_data = json.dumps(data)
+    read_bytes = sys.getsizeof(json_data).to_bytes(64, 'little')
+
+    print(b'@', end='')
+    # print(read_bytes, end='')
+    # print(json_data, end='')
