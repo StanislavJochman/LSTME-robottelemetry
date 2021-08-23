@@ -14,7 +14,7 @@ class RobotTelemetry:
         All Pins have default preset from robot blueprint.
         Should be used in robot's main program e.g.: 
 
-        import RobotTelemetry
+        from robotTelemetry import RobotTelemetry
         ...
         t = RobotTelemetry(cny_LL=33,...)
         ...

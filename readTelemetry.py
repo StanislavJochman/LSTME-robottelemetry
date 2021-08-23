@@ -20,7 +20,7 @@ class ReadTelemetry:
         Updates last robot telemetry values.
         Should be used in robot's GUI telemetry main program e.g.:
 
-        import ReadTelemetry
+        from readTelemetry import ReadTelemetry
         ...
         t = ReadTelemetry('/dev/tty.usbmodem0000000000001')
         ...
