@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import utime
 import json
+import _thread
 
 from machine import Pin, PWM
 from hcsr04 import HCSR04
@@ -12,17 +13,17 @@ class RobotTelemetry:
         Configure pins.
 
         All Pins have default preset from robot blueprint.
-        Should be used in robot's main program e.g.: 
+        Should be started once in robot's program e.g.: 
 
         from robotTelemetry import RobotTelemetry
         ...
         t = RobotTelemetry(cny_LL=33,...)
         ...
+        t.start()
 
         def main():
             # follow line...
             ...
-            t.main()
 
 
         Parameters:
@@ -105,11 +106,15 @@ class RobotTelemetry:
         return json.dumps(self.data)
 
     def main(self):
-        self.read_cny()
-        self.read_ultrasonic()
-        self.read_motors()
+        while True:
+            self.read_cny()
+            self.read_ultrasonic()
+            self.read_motors()
 
-        print('@start')
-        print(self.json_encode())
+            print('@start')
+            print(self.json_encode())
 
-        utime.sleep(0.01)
+            utime.sleep(0.01)
+
+    def start(self):
+        _thread.start_new_thread(self.main, ())
