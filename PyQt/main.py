@@ -12,6 +12,9 @@ ComPort = ""
 data_ser = []
 connected = 0
 ser = None
+starttime = time.time()
+motor_state = "x"
+
 def setupButtons(objName, WindowName):
 	ui = objName
 	ui.ConnectButton.clicked.connect(lambda: Connect(ui))
@@ -29,15 +32,34 @@ def Connect(ui):
 	ComPort = ui.COM_Port.currentText()
 	
 def sendDir(dir):
+	global ser,starttime, motor_state
 	if(dir == "w"):
-		print("w")
+		if(motor_state != "w"):
+			print("w")
+		#ser.write("w\n")
+		motor_state = "w"
+		starttime = time.time()
 	elif(dir == "s"):
-		print("s")
+		if(motor_state != "s"):
+			print("s")
+		motor_state = "s"
+		starttime = time.time()
 	elif(dir == "a"):
-		print("a")
+		if(motor_state != "a"):
+			print("a")
+		motor_state = "a"
+		starttime = time.time()
 	elif(dir == "d"):
-		print("d")
+		if(motor_state != "d"):
+			print("d")
+		motor_state = "d"
+		starttime = time.time()
+	elif(motor_state != "x" and time.time()-starttime>0.6):
+		motor_state = "x"
+		starttime = time.time()
+		print("stop")
 
+		
 def updateData():
 	global data_ser,ser,connected
 	
@@ -64,8 +86,7 @@ def updateData():
 				ui.AccelerometerX.display(float(data_ser[13]))
 				ui.AccelerometerY.display(float(data_ser[14]))
 				ui.AccelerometerZ.display(float(data_ser[15]))
-
-
+	sendDir("x")
 
 	QtCore.QTimer.singleShot(5, updateData)
 
